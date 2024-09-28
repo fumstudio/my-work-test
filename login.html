@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Basic styles for the modal */
+    #image-modal, #alert-modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding-top: 60px;
+      z-index: 3;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      z-index: 3;
+
+    }
+    #alert-content {
+      background-color: blue;
+      color: white;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    .img-option {
+      cursor: pointer;
+      margin: 5px;
+      width: 50px;
+      height: 50px;
+    }
+    .profile-photo-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+    .profile-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      z-index: 1;
+    }
+    .profile-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Login / Signup</h1>
+
+  <div id="user-info">
+    <div id="user-details"></div>
+  </div>
+  <div class="profile-photo-container">
+    <img id="default-background" src="https://firebasestorage.googleapis.com/v0/b/myhost-a7ee9.appspot.com/o/images%2FWhatsApp%20Image%202024-09-26%20at%207.51.40%20AM.jpeg?alt=media&token=42565b33-c522-4167-bbd6-3a7f267d6627" alt="Default Background" class="profile-background">
+    <img id="user-photo" src="" alt="User Profile Picture" class="profile-image"> 
+  </div>
+  <div>
+    <input type="text" id="first-name" placeholder="First Name">
+    <input type="text" id="last-name" placeholder="Last Name">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+
+    <div class="profile-photo-container">
+      <img id="selected-photo" src="" alt="Selected Photo" width="50" height="50">
+      <button id="change-photo-btn">Change Photo</button>
+      <input type="file" id="upload-photo" accept="image/*">
+    </div>
+
+    <button id="signup-btn">Sign Up</button>
+    <button id="login-btn">Login</button>
+    <button id="update-profile">Update Profile</button>
+    <button id="logout-btn" style="display: none;">Logout</button> 
+  </div>
+
+  <!-- Modal for changing photos -->
+  <div id="image-modal">
+    <div class="modal-content">
+      <span id="close-modal" style="cursor:pointer;">&times;</span>
+      <h2>Select a Photo</h2>
+      <div id="image-options">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDiBfglDE0DpVdbwpBp6_H01S07njGKHku0A&s" class="img-option" onclick="selectPhoto('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDiBfglDE0DpVdbwpBp6_H01S07njGKHku0A&s')">
+        <img src="photo2.jpg" class="img-option" onclick="selectPhoto('photo2.jpg')">
+        <img src="photo3.jpg" class="img-option" onclick="selectPhoto('photo3.jpg')">
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom alert modal -->
+  <div id="alert-modal">
+    <div class="modal-content">
+      <div id="alert-content">This is a custom alert!</div>
+      <button id="close-alert">OK</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+    import { getDatabase, ref as dbRef, set, get } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAqm1p_jkuS9BgDFTlUIZ1R1OV61Qdt1Ok", 
+      authDomain: "login-2ff4a.firebaseapp.com",
+      projectId: "login-2ff4a",
+      storageBucket: "login-2ff4a.appspot.com",
+      messagingSenderId: "177553893792",
+      appId: "1:177553893792:web:fdc0766a083fac3008dcc5",
+      measurementId: "G-QT1RW7ECT0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+    const storage = getStorage(app);
+
+    // Handle authentication state
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        loadUserProfile(user.uid);
+        document.getElementById("logout-btn").style.display = "block"; // Show logout button
+      } else {
+        resetUI();
+        document.getElementById("logout-btn").style.display = "none"; // Hide logout button
+      }
+    });
+
+    // Load user profile
+    async function loadUserProfile(uid) {
+      const userSnapshot = await get(dbRef(database, 'users/' + uid));
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.val();
+        document.getElementById("user-details").textContent = `Logged in as: ${userData.firstName || 'N/A'} ${userData.lastName || 'N/A'} (${userData.email || 'N/A'})`;
+        document.getElementById("first-name").value = userData.firstName || '';
+        document.getElementById("last-name").value = userData.lastName || '';
+
+        // Retrieve the user's selected photo from Firebase Storage
+        if (userData.photoURL) {
+          document.getElementById("user-photo").src = userData.photoURL;
+          document.getElementById("selected-photo").src = userData.photoURL;
+        } else {
+          document.getElementById("user-photo").src = ''; // Reset user photo if no user data
+          document.getElementById("selected-photo").src = ''; // Reset selected photo if no user data
+        }
+      } else {
+        document.getElementById("user-photo").src = ''; // Reset user photo if no user data
+        document.getElementById("selected-photo").src = ''; // Reset selected photo if no user data
+      }
+    }
+
+    // Reset UI for logged-out state
+    function resetUI() {
+      document.getElementById("user-details").textContent = '';
+      document.getElementById("first-name").value = '';
+      document.getElementById("last-name").value = '';
+      document.getElementById("user-photo").src = ''; // Reset to empty on logout
+      document.getElementById("selected-photo").src = ''; // Reset selected photo on logout
+    }
+
+    // Change photo button click event
+    document.getElementById("change-photo-btn").addEventListener("click", () => {
+      document.getElementById("image-modal").style.display = "block";
+    });
+
+    // Select a photo and update the UI
+    window.selectPhoto = function(photo) {
+      document.getElementById("selected-photo").src = photo;
+      document.getElementById("user-photo").src = photo; // Update displayed user photo
+      document.getElementById("image-modal").style.display = "none";
+    };
+
+    // Close the image selection modal
+    document.getElementById("close-modal").addEventListener("click", () => {
+      document.getElementById("image-modal").style.display = "none";
+    });
+
+    // Show custom alert
+    function showAlert(message) {
+      document.getElementById("alert-content").textContent = message;
+      document.getElementById("alert-modal").style.display = "block";
+    }
+
+    // Close alert modal
+    document.getElementById("close-alert").addEventListener("click", () => {
+      document.getElementById("alert-modal").style.display = "none";
+    });
+
+    // Update Profile button click event
+    document.getElementById("update-profile").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const photoToUse = document.getElementById("selected-photo").src;
+
+        // Update the user's profile in the database
+        await set(dbRef(database, 'users/' + user.uid), {
+          firstName: document.getElementById("first-name").value,
+          lastName: document.getElementById("last-name").value,
+          email: user.email,
+          photoURL: photoToUse
+        });
+
+        showAlert('Profile updated successfully!');
+        loadUserProfile(user.uid); // Refresh user profile display
+      } else {
+        showAlert("You must be logged in to update your profile.");
+      }
+    });
+
+    // Handle file selection for profile photo
+    document.getElementById("upload-photo").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          document.getElementById("selected-photo").src = e.target.result; // Display selected image
+          document.getElementById("user-photo").src = e.target.result; // Update displayed user photo
+
+          // Upload the image to Firebase Storage
+          const user = auth.currentUser;
+          const storagePath = `profile_photos/${user.uid}`;
+          const blob = dataURLtoBlob(e.target.result);
+          const storageReference = storageRef(storage, storagePath);
+          await uploadBytes(storageReference, blob);
+          const photoURL = await getDownloadURL(storageReference);
+
+          // Update user photoURL in database
+          await set(dbRef(database, 'users/' + user.uid), {
+            photoURL: photoURL
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // User login
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showAlert("Logged in successfully!");
+      } catch (error) {
+        if (error.code === 'auth/wrong-password') {
+          showAlert("Wrong password. Please try again.");
+        } else if (error.code === 'auth/user-not-found') {
+          showAlert("Email not registered. Please sign up.");
+        } else {
+          showAlert("Unrecognized error. Please try again.");
+        }
+      }
+    });
+
+    // User registration
+    document.getElementById("signup-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const firstName = document.getElementById("first-name").value;
+      const lastName = document.getElementById("last-name").value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await set(dbRef(database, 'users/' + user.uid), {
+          firstName,
+          lastName,
+          email,
+          photoURL: ''
+        });
+        showAlert("User registered successfully!");
+      } catch (error) {
+        console.error("Error registering:", error);
+        showAlert(error.message);
+      }
+    });
+
+    // User logout
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await signOut(auth);
+      showAlert("Logged out successfully!");
+    });
+
+    // Helper function to convert data URL to Blob
+    function dataURLtoBlob(dataURL) {
+      const parts = dataURL.split(',');
+      const mime = parts[0].split(':')[1].split(';')[0];
+      const byteString = atob(parts[1]);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      return new Blob([ab], { type: mime });
+    }
+  </script>
+</body>
