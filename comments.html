@@ -1,3 +1,4 @@
+
 </html>
 <html lang="en">
 <head>
@@ -305,23 +306,22 @@ button:hover {
         <button id="submit-comment">Submit Comment</button>
     </div>
     <div id="comments"></div>
-<a href="login.html">Go to Comments</a>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
         import { getDatabase, ref as dbRef, onValue, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
 
-           const firebaseConfig = {
+        const firebaseConfig = {
     apiKey: "AIzaSyBDrzrgLslaJvnXbo1e90irCEtdcm9ZsCU",
     authDomain: "logins-13661.firebaseapp.com",
+    databaseURL: "https://logins-13661-default-rtdb.firebaseio.com",
     projectId: "logins-13661",
     storageBucket: "logins-13661.appspot.com",
     messagingSenderId: "451535349483",
     appId: "1:451535349483:web:d3c9867fd2bffbbdca40ae",
     measurementId: "G-DWP16WX2H7"
   };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
@@ -402,99 +402,6 @@ button:hover {
     });
 }
 
-        function loadReplies(commentId, repliesElement, commentData) {
-            const repliesRef = dbRef(database, 'comments/' + commentId + '/replies');
-            onValue(repliesRef, (snapshot) => {
-                repliesElement.innerHTML = '';
-                snapshot.forEach(childSnapshot => {
-                    const replyData = childSnapshot.val();
-                    const replyElement = document.createElement("div");
-                    replyElement.className = "reply";
-
-                    const img = document.createElement("img");
-                    img.src = replyData.photoURL || '';
-                    img.alt = `${replyData.firstName} ${replyData.lastName}'s photo`;
-                    img.onerror = () => {
-                        img.src = "https://za.rapid.studio/ocache/821/resources/themes/kh-preview-05.webp?size=1320&t=1735689600";
-                    };
-                    replyElement.appendChild(img);
-
-                    const textElement = document.createElement("span");
-                    textElement.textContent = `${replyData.firstName} ${replyData.lastName}: ${replyData.text}`;
-                    replyElement.appendChild(textElement);
-
-                    const user = auth.currentUser;
-                    const deleteButton = document.createElement("button");
-                    deleteButton.textContent = "Delete";
-
-                    // Show delete button if the current user is the reply author or the original commenter
-                    if (user && (replyData.user === user.email || commentData.user === user.email)) {
-                        deleteButton.onclick = () => deleteReply(commentId, childSnapshot.key, commentData); // Pass commentData
-                        replyElement.appendChild(deleteButton);
-                    }
-
-                    const editButton = document.createElement("button");
-                    editButton.textContent = "Edit Reply";
-                    if (user && replyData.user === user.email) {
-                        editButton.onclick = () => editReply(commentId, childSnapshot.key, replyData);
-                        replyElement.appendChild(editButton);
-                    }
-
-                    repliesElement.appendChild(replyElement);
-                });
-            });
-        }
-
-        function submitReply(commentId, replyInput) {
-            const replyText = replyInput.value;
-            const user = auth.currentUser;
-
-            if (replyText && user) {
-                const userSnapshot = get(dbRef(database, 'users/' + user.uid));
-                userSnapshot.then(async snapshot => {
-                    const { firstName, lastName, photoURL } = snapshot.val();
-                    const replyRef = dbRef(database, 'comments/' + commentId + '/replies/' + Date.now());
-                    set(replyRef, {
-                        text: replyText,
-                        user: user.email,
-                        firstName: firstName || 'Anonymous',
-                        lastName: lastName || '',
-                        photoURL: photoURL || '',
-                    });
-                    replyInput.value = ''; 
-                });
-            }
-        }
-  async function deleteReply(commentId, replyId, commentData) {
-    const user = auth.currentUser;
-    if (user) {
-        const replyRef = dbRef(database, 'comments/' + commentId + '/replies/' + replyId);
-        const replyData = await get(replyRef);
-
-        if (replyData.exists() && (replyData.val().user === user.email || commentData.user === user.email)) {
-            // Update the modal message to ask about deleting the reply
-            const modalMessage = document.getElementById('reply-modal-message');
-            modalMessage.textContent = "Do you want to delete this reply?"; // Updated message
-
-            // Show the modal
-            const modal = document.getElementById('reply-confirmation-modal'); // Updated ID
-            modal.style.display = 'block';
-
-            return new Promise((resolve) => {
-                document.getElementById('reply-yes-button').onclick = async () => {
-                    await set(replyRef, null);
-                    modal.style.display = 'none';
-                    resolve(true);
-                };
-
-                document.getElementById('reply-no-button').onclick = () => {
-                    modal.style.display = 'none';
-                    resolve(false);
-                };
-            });
-        }
-    }
-}
 
 // To close the modal when clicking outside of it
 window.onclick = function(event) {
@@ -580,16 +487,6 @@ window.onclick = function(event) {
 };
 
 
-        function editReply(commentId, replyId, replyData) {
-            const newText = prompt("Edit your reply:", replyData.text);
-            if (newText) {
-                const replyRef = dbRef(database, 'comments/' + commentId + '/replies/' + replyId);
-                set(replyRef, {
-                    ...replyData,
-                    text: newText,
-                });
-            }
-        }
 
         async function updateUserComments(email, firstName, lastName, photoURL) {
             const commentsRef = dbRef(database, 'comments/' + pageId);

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Comments Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    #user-info {
+      display: none;
+    }
+
+    .profile-photo-container {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    #user-photo {
+      border-radius: 50%;
+      margin-right: 10px;
+      width: 40px;
+      height: 40px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea {
+      width: calc(80% - 20px);
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #5c6bc0;
+      color: white;
+      border: none;
+      padding: 10px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px 0;
+    }
+
+    button:hover {
+      background-color: #3949ab;
+    }
+
+    #comment-section {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #comments {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+
+    .comment {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .comment img {
+      border-radius: 50%;
+      margin-right: 10px;
+      width: 30px;
+      height: 30px;
+    }
+
+    .comment span {
+      line-height: 1.5;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Comments</h1>
+  <div id="comment-form">
+    <input type="text" id="comment-input" placeholder="Write a comment..." />
+    <button id="submit-comment">Submit</button>
+  </div>
+
+  <div id="comments-container"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+    import { getDatabase, ref as dbRef, onValue, set, get } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDrzrgLslaJvnXbo1e90irCEtdcm9ZsCU",
+      authDomain: "logins-13661.firebaseapp.com",
+      databaseURL: "https://logins-13661-default-rtdb.firebaseio.com",
+      projectId: "logins-13661",
+      storageBucket: "logins-13661.appspot.com",
+      messagingSenderId: "451535349483",
+      appId: "1:451535349483:web:d3c9867fd2bffbbdca40ae",
+      measurementId: "G-DWP16WX2H7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const auth = getAuth(app);
+    const pageId = "page3"; // Page identifier for comments
+
+    // Load existing comments
+    const commentsRef = dbRef(database, 'comments/' + pageId);
+    const commentsContainer = document.getElementById('comments-container');
+
+    onValue(commentsRef, (snapshot) => {
+      commentsContainer.innerHTML = ''; // Clear existing comments
+      if (snapshot.exists()) {
+        snapshot.forEach(commentSnapshot => {
+          const commentData = commentSnapshot.val();
+          const commentElement = document.createElement('div');
+          commentElement.classList.add('comment');
+          commentElement.dataset.uid = commentData.uid; // Store UID for future updates
+          commentElement.innerHTML = `
+            <img src="${commentData.photoURL}" alt="User Photo" width="50" height="50">
+            <strong>${commentData.name}</strong>: ${commentData.comment}
+          `;
+          commentsContainer.insertBefore(commentElement, commentsContainer.firstChild); // Prepend new comment
+        });
+      }
+    });
+
+    // Handle comment submission
+    document.getElementById('submit-comment').addEventListener('click', async () => {
+      const commentInput = document.getElementById('comment-input');
+      const user = auth.currentUser;
+
+      if (user && commentInput.value) {
+        const userSnapshot = await get(dbRef(database, 'users/' + user.uid));
+        const userData = userSnapshot.val();
+
+        const newCommentRef = dbRef(database, 'comments/' + pageId + '/' + Date.now()); // Using timestamp as key
+        await set(newCommentRef, {
+          uid: user.uid, // Store UID for future updates
+          name: `${userData.firstName} ${userData.lastName}`, // Corrected string interpolation
+          email: user.email,
+          photoURL: userData.photoURL || '', // User's profile photo
+          comment: commentInput.value
+        });
+
+        // Create new comment element to prepend
+        const newCommentElement = document.createElement('div');
+        newCommentElement.classList.add('comment');
+        newCommentElement.dataset.uid = user.uid; // Store UID for future updates
+        newCommentElement.innerHTML = `
+          <img src="${userData.photoURL || ''}" alt="User Photo" width="50" height="50">
+          <strong>${userData.firstName} ${userData.lastName}</strong>: ${commentInput.value}
+        `;
+        commentsContainer.insertBefore(newCommentElement, commentsContainer.firstChild); // Prepend the new comment
+
+        commentInput.value = ''; // Clear the input after submission
+      } else {
+        alert("You must be logged in to comment.");
+      }
+    });
+
+    // Update comments when user updates profile
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        const userRef = dbRef(database, 'users/' + user.uid);
+        onValue(userRef, (snapshot) => {
+          const userData = snapshot.val();
+          if (userData) {
+            commentsContainer.querySelectorAll('.comment').forEach(commentElement => {
+              if (commentElement.dataset.uid === user.uid) {
+                commentElement.querySelector('strong').textContent = `${userData.firstName} ${userData.lastName}`;
+                const img = commentElement.querySelector('img');
+                img.src = userData.photoURL || ''; // Update profile photo
+              }
+            });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Add your CSS styles here */
+    /* Basic styles for the modal */
+    #image-modal, #alert-modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    #alert-content {
+      background-color: blue;
+      color: white;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .img-option {
+      cursor: pointer;
+      margin: 5px;
+      width: 50px;
+      height: 50px;
+    }
+
+    .profile-photo-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+
+    .profile-background, .profile-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Profile</h1>
+
+  <div id="user-info">
+    <div id="user-details"></div>
+  </div>
+  <div class="profile-photo-container">
+    <img id="default-background" src="https://firebasestorage.googleapis.com/v0/b/myhost-a7ee9.appspot.com/o/images%2FWhatsApp%20Image%202024-09-26%20at%207.51.40%20AM.jpeg?alt=media&token=42565b33-c522-4167-bbd6-3a7f267d6627" alt="Default Background" class="profile-background">
+    <img id="user-photo" src="" alt="User Profile Picture" class="profile-image"> 
+  </div>
+  <div>
+    <input type="text" id="first-name" placeholder="First Name">
+    <input type="text" id="last-name" placeholder="Last Name">
+    <input type="email" id="email" placeholder="Email" readonly> 
+
+    <div class="profile-photo-container">
+      <img id="selected-photo" src="" alt="Selected Photo" width="50" height="50">
+      <button id="change-photo-btn">Change Photo</button>
+      <input type="file" id="upload-photo" accept="image/*">
+    </div>
+
+    <button id="update-profile">Update Profile</button>
+    <button id="logout-btn">Logout</button> 
+  </div>
+
+  <!-- Modal for changing photos -->
+  <div id="image-modal">
+    <div class="modal-content">
+      <span id="close-modal" style="cursor:pointer;">&times;</span>
+      <h2>Select a Photo</h2>
+      <div id="image-options">
+        <img src="photo1.jpg" class="img-option" onclick="selectPhoto('photo1.jpg')">
+        <img src="photo2.jpg" class="img-option" onclick="selectPhoto('photo2.jpg')">
+        <img src="photo3.jpg" class="img-option" onclick="selectPhoto('photo3.jpg')">
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom alert modal -->
+  <div id="alert-modal">
+    <div class="modal-content">
+      <div id="alert-content">This is a custom alert!</div>
+      <button id="close-alert">OK</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+    import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+    import { getDatabase, ref as dbRef, set, get } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDrzrgLslaJvnXbo1e90irCEtdcm9ZsCU",
+      authDomain: "logins-13661.firebaseapp.com",
+      databaseURL: "https://logins-13661-default-rtdb.firebaseio.com",
+      projectId: "logins-13661",
+      storageBucket: "logins-13661.appspot.com",
+      messagingSenderId: "451535349483",
+      appId: "1:451535349483:web:d3c9867fd2bffbbdca40ae",
+      measurementId: "G-DWP16WX2H7"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+    const storage = getStorage(app);
+
+    // Handle authentication state
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        loadUserProfile(user.uid);
+      } else {
+        window.location.href = 'login.html'; // Redirect to login page if not logged in
+      }
+    });
+
+    // Load user profile
+    async function loadUserProfile(uid) {
+      const userSnapshot = await get(dbRef(database, 'users/' + uid));
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.val();
+        document.getElementById("user-details").textContent = `Logged in as: ${userData.firstName || 'N/A'} ${userData.lastName || 'N/A'} (${userData.email || 'N/A'})`;
+        document.getElementById("first-name").value = userData.firstName || '';
+        document.getElementById("last-name").value = userData.lastName || '';
+        document.getElementById("email").value = userData.email || '';
+
+        // Retrieve the user's selected photo from Firebase Storage
+        if (userData.photoURL) {
+          document.getElementById("user-photo").src = userData.photoURL;
+          document.getElementById("selected-photo").src = userData.photoURL;
+        } else {
+          document.getElementById("user-photo").src = ''; // Reset user photo if no user data
+          document.getElementById("selected-photo").src = ''; // Reset selected photo if no user data
+        }
+      } else {
+        document.getElementById("user-photo").src = ''; // Reset user photo if no user data
+        document.getElementById("selected-photo").src = ''; // Reset selected photo if no user data
+      }
+    }
+
+    // Change photo button click event
+    document.getElementById("change-photo-btn").addEventListener("click", () => {
+      document.getElementById("image-modal").style.display = "block";
+    });
+
+    // Select a photo and update the UI
+    window.selectPhoto = function(photo) {
+      document.getElementById("selected-photo").src = photo;
+      document.getElementById("user-photo").src = photo; // Update displayed user photo
+      document.getElementById("image-modal").style.display = "none";
+    };
+
+    // Close the image selection modal
+    document.getElementById("close-modal").addEventListener("click", () => {
+      document.getElementById("image-modal").style.display = "none";
+    });
+
+    // Show custom alert
+    function showAlert(message) {
+      document.getElementById("alert-content").textContent = message;
+      document.getElementById("alert-modal").style.display = "block";
+    }
+
+    // Close alert modal
+    document.getElementById("close-alert").addEventListener("click", () => {
+      document.getElementById("alert-modal").style.display = "none";
+    });
+
+    // Update Profile button click event
+    document.getElementById("update-profile").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const selectedPhoto = document.getElementById("selected-photo").src;
+        const firstName = document.getElementById("first-name").value;
+        const lastName = document.getElementById("last-name").value;
+
+        // Update the user's profile in the database
+        await set(dbRef(database, 'users/' + user.uid), {
+          firstName: firstName,
+          lastName: lastName,
+          email: user.email,
+          photoURL: selectedPhoto || user.photoURL
+        });
+
+        // Update user info in existing comments
+        await updateUserComments(user.email, firstName, lastName, selectedPhoto || user.photoURL);
+
+        showAlert('Profile updated successfully!');
+        loadUserProfile(user.uid); // Refresh user profile display
+      } else {
+        showAlert("You must be logged in to update your profile.");
+      }
+    });
+
+    // Function to update user comments
+    async function updateUserComments(oldEmail, firstName, lastName, photoURL) {
+      const commentsRef = dbRef(database, 'comments/');
+      const commentsSnapshot = await get(commentsRef);
+
+      commentsSnapshot.forEach(async (pageSnapshot) => {
+        pageSnapshot.forEach(async (commentSnapshot) => {
+          const commentData = commentSnapshot.val();
+          if (commentData.user === oldEmail) {
+            await set(dbRef(database, `comments/${pageSnapshot.key}/${commentSnapshot.key}`), {
+              ...commentData,
+              firstName: firstName,
+              lastName: lastName,
+              photoURL: photoURL
+            });
+          }
+        });
+      });
+    }
+
+    // Logout button click event
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = 'login.html'; // Redirect to login page after logout
+    });
+  </script>
+</body>
+</html>
+
