@@ -1,605 +1,429 @@
-
-</html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comments Page</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-      }
-      #user-info {
-        display: none;
-      }
-      .profile-photo-container {
-        display: flex;
-        align-items: center;
-        margin-top: 10px;
-      }
-      #selected-photo {
-        border-radius: 50%;
-        margin-right: 10px;
-      }
-      button {
-        margin-top: 10px;
-      }
-      body { 
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  margin: 0;
-  padding: 20px;
-}
-
-/* User Info */
-#user-info {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-#user-photo {
-  border-radius: 50%;
-  margin-right: 10px;
-  width: 40px;
-  height: 40px;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea {
-  width: calc(80% - 20px);
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-/* Profile Photo Upload */
-.profile-photo-container {
-  display: flex;
-  align-items: center;
-  margin: 10px 0;
-}
-
-#selected-photo {
-  border-radius: 50%;
-  margin-right: 10px;
-  width: 40px;
-  height: 40px;
-}
-
-.remove-photo-btn {
-  background: transparent;
-  border: none;
-  color: red;
-  cursor: pointer;
-  font-size: 20px;
-}
-
-/* Button Icon Styles */
-.button-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 8px;
-  color: #888;
-  font-size: 14px;
-}
-
-.button-icon:hover {
-  color: #333;
-}
-
-/* Buttons */
-button {
-  background-color: #5c6bc0;
-  color: white;
-  border: none;
-  padding: 10px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 5px 0;
-}
-
-button:hover {
-  background-color: #3949ab;
-}
-
-/* Comment Section */
-#comment-section {
-  margin-top: 20px;
-  background: #fff;
-  padding: 15px;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-#comments {
-  max-height: 300px;
-  overflow-y: auto;
-  margin-bottom: 10px;
-}
-
-/* Comment Styles */
-
-.comment img {
-  border-radius: 50%;
-  margin-right: 10px;
-  width: 30px;
-  height: 30px;
-}
-
-.comment span {
-  line-height: 1.5;
-  font-size: 14px;
-}
-
-/* Replies Styles */
-.replies {
-  margin-left: 40px;
-  padding-top: 10px;
-}
-
-.reply {
-  display: flex;
-  align-items: flex-start;
-  padding: 5px 0;
-}
-
-.reply img {
-  width: 25px;
-  height: 25px;
-  margin-right: 10px;
-}
-
-
-
-.gray-background {
-  background-color: #f9f9f9;
-}
-
-/* Icons */
-.user-icon {
-  font-size: 20px;
-  color: #888;
-}
-
-.blue-icon {
-  color: #5c6bc0;
-}
-
-/* Responsive Styles */
-@media (max-width: 600px) {
-  #comment-section {
-    padding: 10px;
-  }
-
-  button {
-    padding: 8px 12px;
-  }
- .reply-input {
-    width: calc(100% - 45px); /* Adjust width for mobile */
-  }
-
-  #user-info {
-    flex-direction: column; /* Stack user info on mobile */
-    align-items: flex-start;
-  }
-
-
-  #user-photo {
-    width: 30px;
-    height: 30px;
-  }
-}
-
-@media (min-width: 601px) {
-  /* Desktop Styles */
-  #comment-section {
-    width: 600px; /* Fixed width for desktop */
-    margin: 0 auto; /* Center the comment section */
-  }
-
-  .reply-input {
-    width: calc(100% - 70px); /* Adjust width for desktop */
-  }
-}
- #user-info {
-      display: none;
+  <meta charset="UTF-8">
+  <title>Comments Page</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #comment-form {
+      display: flex;
+      justify-content: center;
       margin-bottom: 20px;
     }
-    .profile-photo-container {
+    #comment-input {
+      width: 70%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+    #submit-comment {
+      padding: 10px 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #submit-comment:hover {
+      background-color: #0056b3;
+    }
+    #total-comments {
+      text-align: center;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    #comments-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .comment {
+      border-bottom: 1px solid #eee;
+      padding: 10px;
+      display: flex;
+      align-items: flex-start;
+      position: relative;
+      margin-bottom: 10px;
+    }
+    .comment:last-child {
+      border-bottom: none;
+    }
+    img {
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      margin-right: 10px;
+    }
+    .comment-content {
+      flex: 1;
+      margin-right: 10px;
+    }
+    .comment-author {
+      font-weight: bold;
+      color: #333;
+    }
+    .comment-text {
+      color: #666;
+      margin: 5px 0;
+    }
+    .icon-container {
+      position: relative;
+      cursor: pointer;
+    }
+    .options {
+      display: none; /* Initially hidden */
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      right: 0;
+      z-index: 10;
+    }
+    .option {
+      padding: 10px;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      margin-top: 10px;
     }
-    #user-photo, #selected-photo {
-      width: 100px; /* Fixed width for the image */
-      height: 100px; /* Fixed height for the image */
-      border-radius: 50%; /* Make the image round */
-      object-fit: cover; /* Crop the image to fill the circle */
-      margin-right: 10px; /* Space between image and file input */
+    .option:hover {
+      background-color: #f0f0f0;
     }
-    #user-details {
-      margin-top: 10px;
+    /* Modal Styles */
+    #modal, #alert-modal, #edit-modal {
+      display: none; 
+      position: fixed; 
+      left: 0; 
+      top: 0; 
+      width: 100%; 
+      height: 100%; 
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center; 
+      align-items: center;
     }
-    button {
-      margin-top: 10px;
+    #modal-content, #alert-modal-content, #edit-modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      text-align: center;
     }
-
-
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
-}
-
-.modal-content {
-    background-color: white;
-    margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
-}
-
-.button {
-    padding: 10px 20px;
-    margin: 5px;
-    border: none;
-    cursor: pointer;
-}
-
-.yes {
-    background-color: blue;
-    color: white;
-}
-
-.no {
-    background-color: gray;
-    color: white;
-}
-
-        img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-    </style>
+    .modal-button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .yes-button {
+      background-color: #4CAF50; 
+      color: white;
+    }
+    .no-button {
+      background-color: #f44336; 
+      color: white;
+    }
+    .alert-button {
+      background-color: #007BFF; 
+      color: white;
+    }
+    .edit-button-style {
+      background-color: #007BFF; 
+      color: white; 
+      border: none; 
+      border-radius: 5px;
+    }
+  </style>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div id="confirmModal" class="modal">
-    <div class="modal-content">
-        <p>Are you sure you want to delete this comment?</p>
-        <button id="yesButton" class="button yes">Yes</button>
-        <button id="noButton" class="button no">No</button>
+  <h1>Comments</h1>
+  <div id="comment-form">
+    <input type="text" id="comment-input" placeholder="Write a comment..." />
+    <button id="submit-comment" style="background-color: black; color: white;">
+      <i class="fas fa-paper-plane" style="margin-right: 5px;"></i> Submit
+    </button>
+  </div>
+
+  <div id="total-comments">Total Comments: 0</div>
+  <div id="comments-container"></div>
+
+  <!-- Modal for confirmation -->
+  <div id="modal">
+    <div id="modal-content">
+      <p>Are you sure you want to delete this comment?</p>
+      <button id="yes-button" class="modal-button yes-button">Yes</button>
+      <button id="no-button" class="modal-button no-button">No</button>
     </div>
-</div>
-<div id="reply-confirmation-modal" class="modal"> <!-- Updated ID -->
-    <div class="modal-content">
-        <p id="reply-modal-message">Are you sure you want to delete this reply?</p> <!-- Updated ID -->
-        <button id="reply-yes-button" class="button yes">Yes</button> <!-- Updated ID -->
-        <button id="reply-no-button" class="button no">No</button> <!-- Updated ID -->
+  </div>
+
+  <!-- Alert Modal -->
+  <div id="alert-modal">
+    <div id="alert-modal-content">
+      <p>You must be logged in to comment.</p>
+      <button id="alert-button" class="modal-button alert-button">Okay</button>
     </div>
-</div>
+  </div>
 
-
-<div id="comment-count">Total Comments: 0</div>
-<div id="comments"></div>
-
-    <h1>Comments Section</h1>
-    <div id="user-info"></div>
-    <img id="user-photo" src="" alt="User Photo">
-    <div>
-        <input type="text" id="comment-input" placeholder="Write your comment...">
-        <button id="submit-comment">Submit Comment</button>
+  <!-- Edit Modal -->
+  <div id="edit-modal">
+    <div id="edit-modal-content">
+      <p>Edit your comment:</p>
+      <textarea id="edit-comment-input" rows="4" cols="50"></textarea>
+      <br>
+      <button id="save-edit-button" class="modal-button edit-button-style">Save</button>
+      <button id="cancel-edit-button" class="modal-button no-button">Cancel</button>
     </div>
-    <div id="comments"></div>
+  </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
-        import { getDatabase, ref as dbRef, onValue, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+    import { getDatabase, ref as dbRef, onValue, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
 
-        const firebaseConfig = {
-    apiKey: "AIzaSyBDrzrgLslaJvnXbo1e90irCEtdcm9ZsCU",
-    authDomain: "logins-13661.firebaseapp.com",
-    databaseURL: "https://logins-13661-default-rtdb.firebaseio.com",
-    projectId: "logins-13661",
-    storageBucket: "logins-13661.appspot.com",
-    messagingSenderId: "451535349483",
-    appId: "1:451535349483:web:d3c9867fd2bffbbdca40ae",
-    measurementId: "G-DWP16WX2H7"
-  };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
-        const pageId = "page3";
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDrzrgLslaJvnXbo1e90irCEtdcm9ZsCU",
+      authDomain: "logins-13661.firebaseapp.com",
+      databaseURL: "https://logins-13661-default-rtdb.firebaseio.com",
+      projectId: "logins-13661",
+      storageBucket: "logins-13661.appspot.com",
+      messagingSenderId: "451535349483",
+      appId: "1:451535349483:web:d3c9867fd2bffbbdca40ae",
+      measurementId: "G-DWP16WX2H7"
+    };
 
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                const uid = user.uid;
-                loadUserProfile(uid);
-                loadComments();
-            } else {
-                document.getElementById("user-info").textContent = "Not logged in.";
-                document.getElementById("comments").innerHTML = "";
-            }
-        });
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const auth = getAuth(app);
+    const pageId = "page3"; 
+    const defaultPhotoURL = "https://firebasestorage.googleapis.com/v0/b/myhost-a7ee9.appspot.com/o/images%2F20240926_165026.jpg?alt=media&token=8f31134d-4250-4253-95ca-a6f311dd6256";
 
-        async function loadUserProfile(uid) {
-            const userSnapshot = await get(dbRef(database, 'users/' + uid));
-            if (userSnapshot.exists()) {
-                const userData = userSnapshot.val();
-                document.getElementById("user-info").textContent = `Logged in as: ${userData.firstName} ${userData.lastName} (${userData.email})`;
-                document.getElementById("user-photo").src = userData.photoURL || '';
-            }
-        }
-
-       function loadComments() {
     const commentsRef = dbRef(database, 'comments/' + pageId);
+    const commentsContainer = document.getElementById('comments-container');
+    const totalCommentsElement = document.getElementById('total-comments');
+    const modal = document.getElementById('modal');
+    const yesButton = document.getElementById('yes-button');
+    const noButton = document.getElementById('no-button');
+    const alertModal = document.getElementById('alert-modal');
+    const alertButton = document.getElementById('alert-button');
+    const editModal = document.getElementById('edit-modal');
+    const editCommentInput = document.getElementById('edit-comment-input');
+    const saveEditButton = document.getElementById('save-edit-button');
+    const cancelEditButton = document.getElementById('cancel-edit-button');
+
+    let commentToDelete = null; // Store the comment key to delete
+    let commentToEditKey = null; // Store the comment key to edit
+
+    // Load existing comments
     onValue(commentsRef, (snapshot) => {
-        const commentsDiv = document.getElementById("comments");
-        commentsDiv.innerHTML = ""; // Clear the commentsDiv
+      commentsContainer.innerHTML = ''; 
+      let totalComments = 0;
 
-        let commentCount = 0; // Initialize comment counter
+      if (snapshot.exists()) {
+        snapshot.forEach(commentSnapshot => {
+          const commentData = commentSnapshot.val();
+          const commentElement = document.createElement('div');
+          commentElement.classList.add('comment');
+          commentElement.dataset.uid = commentData.uid;
+          commentElement.dataset.commentKey = commentSnapshot.key;
+          const userPhoto = commentData.photoURL || defaultPhotoURL; 
 
-        snapshot.forEach((childSnapshot) => {
-            const commentData = childSnapshot.val();
-            const commentElement = document.createElement("div");
-            commentElement.className = "comment";
-            commentElement.id = 'comment-' + childSnapshot.key; // Add ID to the comment element
+          const img = document.createElement("img");
+          img.src = userPhoto;
+          img.alt = `${commentData.name}'s photo`;
+          img.onerror = () => {
+              img.src = "https://za.rapid.studio/ocache/821/resources/themes/kh-preview-05.webp?size=1320&t=1735689600";
+          };
 
-            const img = document.createElement("img");
-            img.src = commentData.photoURL || '';
-            img.alt = `${commentData.firstName} ${commentData.lastName}'s photo`;
-            img.onerror = () => {
-                img.src = "https://za.rapid.studio/ocache/821/resources/themes/kh-preview-05.webp?size=1320&t=1735689600";
-            };
-            commentElement.appendChild(img);
+          commentElement.innerHTML = `
+            <div class="comment-content">
+              <div class="comment-author">${commentData.name}</div>
+              <div class="comment-text">${commentData.comment}</div>
+            </div>
+            <div class="icon-container" style="display: ${auth.currentUser && auth.currentUser.uid === commentData.uid ? 'block' : 'none'};" onclick="toggleOptions(event)">
+              <i class="fas fa-ellipsis-v" style="color: black;"></i>
+              <div class="options">
+                <div class="option edit-button" style="display: none;"><i class="fas fa-edit"></i> Edit</div>
+                <div class="option delete-button" style="display: none;"><i class="fas fa-trash"></i> Delete</div>
+              </div>
+            </div>
+          `;
+          commentElement.prepend(img);
+          commentsContainer.prepend(commentElement); 
+          totalComments++;
 
-            const textElement = document.createElement("span");
-            textElement.textContent = `${commentData.firstName} ${commentData.lastName}: ${commentData.text}`;
-            commentElement.appendChild(textElement);
+          // Show edit and delete buttons only for the comment owner
+          const currentUser = auth.currentUser;
+          if (currentUser && currentUser.uid === commentData.uid) {
+            const editButton = commentElement.querySelector('.edit-button');
+            const deleteButton = commentElement.querySelector('.delete-button');
 
-            const user = auth.currentUser;
-            if (user) {
-                const deleteButton = document.createElement("button");
-                deleteButton.textContent = "Delete";
+            // Attach event listeners for edit and delete buttons
+            editButton.style.display = 'block'; // Show edit button
+            deleteButton.style.display = 'block'; // Show delete button
 
-                // Show delete button if the current user is the comment author
-                if (user && commentData.user === user.email) {
-                    deleteButton.onclick = () => deleteComment(childSnapshot.key); // Pass commentData
-                    commentElement.appendChild(deleteButton);
-                }
+            editButton.addEventListener('click', () => {
+              commentToEditKey = commentSnapshot.key; // Set the key for editing
+              editCommentInput.value = commentData.comment; // Set the current comment for editing
+              editModal.style.display = 'flex'; // Show the edit modal
+            });
 
-                const editButton = document.createElement("button");
-                editButton.textContent = "Edit Comment";
-                if (user && commentData.user === user.email) {
-                    editButton.onclick = () => editComment(childSnapshot.key, commentData);
-                    commentElement.appendChild(editButton);
-                }
-            }
-
-            // Add the comment to the top of the list
-            commentsDiv.prepend(commentElement);
-            commentCount++; // Increment comment counter
+            deleteButton.addEventListener('click', () => {
+              commentToDelete = commentSnapshot.key; // Set the key for deletion
+              modal.style.display = 'flex'; // Show the modal
+            });
+          }
         });
-
-        // Update the comment count display
-        document.getElementById("comment-count").textContent = `Total Comments: ${commentCount}`;
+      }
+      totalCommentsElement.textContent = `Total Comments: ${totalComments}`;
     });
-}
 
+    // Handle comment submission
+    document.getElementById('submit-comment').addEventListener('click', async () => {
+      const commentInput = document.getElementById('comment-input');
+      const user = auth.currentUser;
 
-// To close the modal when clicking outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById('reply-confirmation-modal'); // Updated ID
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-};
+      if (user && commentInput.value) {
+        const commentText = commentInput.value.trim();
+        
+        const userSnapshot = await get(dbRef(database, 'users/' + user.uid));
+        const userData = userSnapshot.val();
 
-
-        document.getElementById("submit-comment").addEventListener("click", async () => {
-            const commentInput = document.getElementById("comment-input");
-            const commentText = commentInput.value;
-            const user = auth.currentUser;
-
-            if (commentText && user) {
-                const userSnapshot = await get(dbRef(database, 'users/' + user.uid));
-                const { firstName, lastName, photoURL } = userSnapshot.val();
-
-                const commentRef = dbRef(database, 'comments/' + pageId + '/' + Date.now());
-                await set(commentRef, {
-                    text: commentText,
-                    user: user.email,
-                    firstName: firstName || 'Anonymous',
-                    lastName: lastName || '',
-                    photoURL: photoURL || '',
-                });
-                commentInput.value = ""; // Clear input
-            } else {
-                alert("You must be logged in to submit a comment.");
-            }
+        const newCommentRef = dbRef(database, 'comments/' + pageId + '/' + Date.now());
+        await set(newCommentRef, {
+          uid: user.uid,
+          name: `${userData.firstName} ${userData.lastName}`,
+          email: user.email,
+          photoURL: userData.photoURL || '',
+          comment: commentText
         });
 
-        function editComment(commentId, commentData) {
-            const newText = prompt("Edit your comment:", commentData.text);
-            if (newText) {
-                const commentRef = dbRef(database, 'comments/' + pageId + '/' + commentId);
-                set(commentRef, {
-                    ...commentData,
-                    text: newText,
-                });
-            }
-        }
-async function deleteComment(commentId) {
-    const user = auth.currentUser;
-    if (user) {
-        const commentRef = dbRef(database, 'comments/' + pageId + '/' + commentId);
+        commentInput.value = ''; 
+      } else {
+        alertModal.style.display = 'flex'; // Show the alert modal
+      }
+    });
 
-        // Show the modal
-        const modal = document.getElementById('confirmModal');
-        modal.style.display = 'block';
+    // Handle modal button actions
+    yesButton.addEventListener('click', () => {
+      if (commentToDelete) {
+        remove(dbRef(database, 'comments/' + pageId + '/' + commentToDelete));
+        commentToDelete = null; // Reset after deletion
+      }
+      modal.style.display = 'none'; // Hide the modal
+    });
 
-        return new Promise((resolve) => {
-            document.getElementById('yesButton').onclick = async () => {
-                await remove(commentRef);
-                modal.style.display = 'none';
-                resolve(true);
-            };
+    noButton.addEventListener('click', () => {
+      modal.style.display = 'none'; // Hide the modal
+      commentToDelete = null; // Reset
+    });
 
-            document.getElementById('noButton').onclick = () => {
-                modal.style.display = 'none';
-                resolve(false);
-            };
+    alertButton.addEventListener('click', () => {
+      alertModal.style.display = 'none'; // Hide alert modal
+    });
+
+    // Handle editing the comment
+    saveEditButton.addEventListener('click', async () => {
+      const newComment = editCommentInput.value.trim();
+      if (newComment !== "") {
+        const user = auth.currentUser;
+        const userSnapshot = await get(dbRef(database, 'users/' + user.uid));
+        const userData = userSnapshot.val();
+
+        await set(dbRef(database, 'comments/' + pageId + '/' + commentToEditKey), {
+          uid: user.uid,
+          name: `${userData.firstName} ${userData.lastName}`,
+          email: user.email,
+          photoURL: userData.photoURL || defaultPhotoURL,
+          comment: newComment
         });
-    }
-}
 
-// To close the modal when clicking outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById('confirmModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-};
+        editModal.style.display = 'none'; // Hide edit modal
+        commentToEditKey = null; // Reset after editing
+      }
+    });
 
+    cancelEditButton.addEventListener('click', () => {
+      editModal.style.display = 'none'; // Hide edit modal
+      commentToEditKey = null; // Reset
+    });
 
-// To close the modal when clicking outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById('confirmModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-};
-
-
-
-        async function updateUserComments(email, firstName, lastName, photoURL) {
-            const commentsRef = dbRef(database, 'comments/' + pageId);
-            const snapshot = await get(commentsRef);
-            snapshot.forEach(childSnapshot => {
-                const commentId = childSnapshot.key;
-                const commentData = childSnapshot.val();
-                if (commentData.user === email) {
-                    set(dbRef(database, 'comments/' + pageId + '/' + commentId), {
-                        ...commentData,
-                        firstName: firstName,
-                        lastName: lastName,
-                        photoURL: photoURL
-                    });
-                }
-
-                const repliesRef = dbRef(database, 'comments/' + pageId + '/' + commentId + '/replies/');
-                get(repliesRef).then(repliesSnapshot => {
-                    repliesSnapshot.forEach(replySnapshot => {
-                        const replyData = replySnapshot.val();
-                        if (replyData.user === email) {
-                            set(dbRef(database, 'comments/' + pageId + '/' + commentId + '/replies/' + replySnapshot.key), {
-                                ...replyData,
-                                firstName: firstName,
-                                lastName: lastName,
-                                photoURL: photoURL
-                            });
-                        }
-                    });
+    // Listen for changes in the user's profile
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const userRef = dbRef(database, 'users/' + user.uid);
+        
+        // Listen for changes in user data
+        onValue(userRef, (snapshot) => {
+          const userData = snapshot.val();
+          if (userData) {
+            // Update comments with new user data
+            commentsContainer.querySelectorAll('.comment').forEach(commentElement => {
+              if (commentElement.dataset.uid === user.uid) {
+                const commentKey = commentElement.dataset.commentKey;
+                // Update comment name and photo
+                set(dbRef(database, 'comments/' + pageId + '/' + commentKey), {
+                  uid: user.uid,
+                  name: `${userData.firstName} ${userData.lastName}`, // Update name
+                  email: user.email,
+                  photoURL: userData.photoURL || defaultPhotoURL, // Update photo URL
+                  comment: commentElement.querySelector('.comment-text').textContent // Keep the original comment text
                 });
+                // Update the displayed name and photo in the comments section
+                commentElement.querySelector('.comment-author').textContent = `${userData.firstName} ${userData.lastName}`;
+                const img = commentElement.querySelector('img');
+                img.src = userData.photoURL || defaultPhotoURL;
+                img.onerror = () => {
+                  img.src = "https://za.rapid.studio/ocache/821/resources/themes/kh-preview-05.webp?size=1320&t=1735689600"; 
+                };
+              }
             });
-        }
-
-        // Function to update user info in existing comments and replies
-        async function updateUserInfoInComments(email, firstName, lastName, photoURL) {
-            const commentsRef = dbRef(database, 'comments/' + pageId);
-            const snapshot = await get(commentsRef);
-            snapshot.forEach(childSnapshot => {
-                const commentId = childSnapshot.key;
-                const commentData = childSnapshot.val();
-                if (commentData.user === email) {
-                    // Update the comment itself
-                    const commentElement = document.getElementById('comment-' + commentId);
-                    if (commentElement) { // Check if the comment element exists
-                        const img = commentElement.querySelector('img');
-                        if (img) {
-                            img.src = photoURL || '';
-                            img.alt = `${firstName} ${lastName}'s photo`;
-                        }
-                        const textElement = commentElement.querySelector('span');
-                        if (textElement) {
-                            textElement.textContent = `${firstName} ${lastName}: ${commentData.text}`;
-                        }
-                    }
-                }
-
-                // Update replies within the comment
-                const repliesElement = document.getElementById('replies-' + commentId);
-                if (repliesElement) {
-                    const replyElements = repliesElement.querySelectorAll('.reply');
-                    replyElements.forEach(replyElement => {
-                        const replyData = replyElement.querySelector('span').textContent.split(': ')[0];
-                        const [replyFirstName, replyLastName] = replyData.split(' ');
-                        if (replyFirstName === firstName && replyLastName === lastName) {
-                            const img = replyElement.querySelector('img');
-                            if (img) {
-                                img.src = photoURL || '';
-                                img.alt = `${firstName} ${lastName}'s photo`;
-                            }
-                            const textElement = replyElement.querySelector('span');
-                            if (textElement) {
-                                textElement.textContent = `${firstName} ${lastName}: ${replyElement.querySelector('span').textContent.split(': ')[1]}`;
-                            }
-                        }
-                    });
-                }
-            });
-        }
-
-        document.getElementById("update-profile").addEventListener("click", async () => {
-            const user = auth.currentUser;
-            if (user) {
-                const selectedPhoto = document.getElementById("selected-photo").src;
-                const firstName = document.getElementById("first-name").value;
-                const lastName = document.getElementById("last-name").value;
-
-                // Update the user's profile in the database
-                await set(dbRef(database, 'users/' + user.uid), {
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: user.email,
-                    photoURL: selectedPhoto || user.photoURL 
-                });
-
-                // Refresh the user profile display
-                loadUserProfile(user.uid); 
-
-                // Update comments and replies with the new profile data
-                const updatedPhotoURL = selectedPhoto || user.photoURL;
-                await updateUserComments(user.email, firstName, lastName, updatedPhotoURL);
-
-                // Update user info in existing comments and replies
-                await updateUserInfoInComments(
-                    user.email, 
-                    firstName, 
-                    lastName, 
-                    updatedPhotoURL
-                );
-
-            } else {
-                alert("You must be logged in to update your profile.");
-            }
+          }
         });
-    </script>
+      }
+    });
+
+    // Toggle options visibility
+    window.toggleOptions = function(event) {
+      const options = event.currentTarget.querySelector('.options');
+      options.style.display = options.style.display === 'block' ? 'none' : 'block';
+      
+      // Close other options
+      const allOptions = document.querySelectorAll('.options');
+      allOptions.forEach(opt => {
+        if (opt !== options) {
+          opt.style.display = 'none';
+        }
+      });
+
+      // Prevent event bubbling
+      event.stopPropagation();
+    };
+
+    // Close options when clicking outside
+    document.addEventListener('click', function() {
+      const allOptions = document.querySelectorAll('.options');
+      allOptions.forEach(opt => {
+        opt.style.display = 'none';
+      });
+    });
+  </script>
 </body>
 </html>
