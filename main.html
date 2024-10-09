@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Likes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        #likeSection {
+            display: flex;
+            align-items: center;
+        }
+        #like-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #eaeaea;
+            border: 5px solid #007bff;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        #like-button {
+            font-size: 2rem;
+            cursor: pointer;
+            color: gray;
+        }
+        #like-button.liked {
+            color: black;
+        }
+        #like-count {
+            font-size: 1.5rem;
+        }
+        #view-liked-pages {
+            margin-top: 20px;
+        }
+        #like-container:hover {
+            background-color: #d0e7ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="likeSection">
+        <div id="like-container">
+            <i id="like-button" class="fas fa-thumbs-up"></i>
+        </div>
+        <span>Likes: </span><span id="like-count">0</span>
+        <a href="liked-pages.html" id="view-liked-pages">View Liked Pages</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+        import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBDrzrgLslaJvnXbo1e90irCEtdcm9ZsCU",
+            authDomain: "logins-13661.firebaseapp.com",
+            databaseURL: "https://logins-13661-default-rtdb.firebaseio.com",
+            projectId: "logins-13661",
+            storageBucket: "logins-13661.appspot.com",
+            messagingSenderId: "451535349483",
+            appId: "1:451535349483:web:d3c9867fd2bffbbdca40ae",
+            measurementId: "G-DWP16WX2H7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app);
+        const pageId = "page9";
+        const pageName = "KEY HOLDER";
+        const pageImages = [
+            "https://www.studio22online.co.za/wp-content/uploads/2022/07/keyringsample600px.jpg",
+            "https://ae01.alicdn.com/kf/Hc4b4f10bf3dd46fe964ceec0a0aeff19K/Beautiful-Heart-Quicksand-Key-Chain-For-Girl-Bag-Pendant-Lovely-Love-Keyfob-Moving-Liquid-Keychain-Floating.jpg"
+        ];
+        const pageLink = "https://ae01.alicdn.com/kf/Hc4b4f10bf3dd46fe964ceec0a0aeff19K/Beautiful-Heart-Quicksand-Key-Chain-For-Girl-Bag-Pendant-Lovely-Love-Keyfob-Moving-Liquid-Keychain-Floating.jpg";
+        const pageDescription = "Personalised key rings are a beautiful way to create your own style. You can print captions, beautiful designs or great images.";
+
+        const likeButton = document.getElementById('like-button');
+        const likeCount = document.getElementById('like-count');
+
+        let userId;
+        let currentLikes = 0;
+        let liked = false;
+
+        // Load total likes (for both logged in and out users)
+        const publicLikesRef = ref(database, publicLikes/${pageId}); 
+        onValue(publicLikesRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                likeCount.textContent = formatLikes(data.count || 0); 
+            }
+        });
+
+        const formatLikes = (num) => {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        };
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                userId = user.uid;
+                loadLikes(); // Load user-specific likes
+            }
+        });
+
+        // Load likes
+        const loadLikes = () => {
+            const likesRef = ref(database, likes/${pageId});
+            onValue(likesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    currentLikes = data.count || 0;
+                    liked = data.users && userId && data.users[userId] === true; // Check if user is logged in
+
+                    updateLikeButton();
+                }
+            });
+        };
+
+        const updateLikeButton = () => {
+            likeButton.classList.toggle('liked', liked);
+            likeButton.classList.toggle('fa-thumbs-up', !liked);
+            likeButton.classList.toggle('fa-gift', liked);
+        };
+
+        likeButton.addEventListener('click', () => {
+            if (!userId) {
+                alert("You must be logged in to like this page.");
+                return;
+            }
+
+            liked = !liked;
+            currentLikes += liked ? 1 : -1;
+
+            // Update both "likes" and "publicLikes"
+            const likesRef = ref(database, likes/${pageId});
+            onValue(likesRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                const users = data.users || {};
+
+                if (liked) {
+                    users[userId] = true;
+                } else {
+                    delete users[userId]; 
+                }
+
+                // Update the likes count
+                set(likesRef, {
+                    count: currentLikes,
+                    users: users
+                }).then(() => {
+                    likeCount.textContent = formatLikes(currentLikes);
+                    updateLikeButton();
+                });
+
+                const likedPagesRef = ref(database, likedPages/${userId}/${pageId});
+                if (liked) {
+                    set(likedPagesRef, {
+                        name: pageName,
+                        images: pageImages,
+                        link: pageLink,
+                        description: pageDescription
+                    });
+                } else {
+                    set(likedPagesRef, null);
+                }
+
+                // Update the public likes count
+                const publicLikesRef = ref(database, publicLikes/${pageId});
+                set(publicLikesRef, {
+                    count: currentLikes 
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
